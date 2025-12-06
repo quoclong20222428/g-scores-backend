@@ -1,7 +1,3 @@
-import { PrismaClient, BangDiem as PrismaBangDiem } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
 export interface IBangDiem {
   id?: number;
   sbd: string;
@@ -68,6 +64,30 @@ export class BangDiem implements IBangDiem {
     return this.toan + this.vat_li + this.hoa_hoc;
   }
 
+  // Tính tổng điểm khối B (Toán, Hóa, Sinh)
+  getTongDiemKhoiB(): number | null {
+    if (this.toan === null || this.hoa_hoc === null || this.sinh_hoc === null) {
+      return null;
+    }
+    return this.toan + this.hoa_hoc + this.sinh_hoc;
+  }
+
+  // Tính tổng điểm khối C (Văn, Sử, Địa)
+  getTongDiemKhoiC(): number | null {
+    if (this.ngu_van === null || this.lich_su === null || this.dia_li === null) {
+      return null;
+    }
+    return this.ngu_van + this.lich_su + this.dia_li;
+  }
+
+  // Tính tổng điểm khối D (Toán, Văn, Ngoại ngữ)
+  getTongDiemKhoiD(): number | null {
+    if (this.toan === null || this.ngu_van === null || this.ngoai_ngu === null) {
+      return null;
+    }
+    return this.toan + this.ngu_van + this.ngoai_ngu;
+  }
+
   // Tính điểm trung bình tất cả các môn đã thi
   getDiemTrungBinh(): number | null {
     const scores = [
@@ -106,150 +126,6 @@ export class BangDiem implements IBangDiem {
       gdcd: this.gdcd,
       ma_ngoai_ngu: this.ma_ngoai_ngu,
     };
-  }
-
-  // ==================== STATIC METHODS (Repository Pattern) ====================
-
-  // Tìm theo ID
-  static async findById(id: number): Promise<BangDiem | null> {
-    const record = await prisma.bangDiem.findUnique({
-      where: { id },
-    });
-    return record ? new BangDiem(record) : null;
-  }
-
-  // Tìm theo số báo danh
-  static async findBySbd(sbd: string): Promise<BangDiem | null> {
-    const record = await prisma.bangDiem.findUnique({
-      where: { sbd },
-    });
-    return record ? new BangDiem(record) : null;
-  }
-
-  // Lấy tất cả bản ghi
-  static async findAll(options?: {
-    skip?: number;
-    take?: number;
-  }): Promise<BangDiem[]> {
-    const records = await prisma.bangDiem.findMany({
-      skip: options?.skip,
-      take: options?.take,
-      orderBy: { sbd: "asc" },
-    });
-    return records.map((record: any) => new BangDiem(record));
-  }
-
-  // Tạo mới một bản ghi
-  static async create(data: ICreateBangDiem): Promise<BangDiem> {
-    const record = await prisma.bangDiem.create({
-      data: {
-        sbd: data.sbd,
-        toan: data.toan ?? null,
-        ngu_van: data.ngu_van ?? null,
-        ngoai_ngu: data.ngoai_ngu ?? null,
-        vat_li: data.vat_li ?? null,
-        hoa_hoc: data.hoa_hoc ?? null,
-        sinh_hoc: data.sinh_hoc ?? null,
-        lich_su: data.lich_su ?? null,
-        dia_li: data.dia_li ?? null,
-        gdcd: data.gdcd ?? null,
-        ma_ngoai_ngu: data.ma_ngoai_ngu ?? null,
-      },
-    });
-    return new BangDiem(record);
-  }
-
-  // Tạo nhiều bản ghi cùng lúc
-  static async createMany(
-    dataList: ICreateBangDiem[],
-    skipDuplicates: boolean = true
-  ): Promise<number> {
-    const result = await prisma.bangDiem.createMany({
-      data: dataList.map((data) => ({
-        sbd: data.sbd,
-        toan: data.toan ?? null,
-        ngu_van: data.ngu_van ?? null,
-        ngoai_ngu: data.ngoai_ngu ?? null,
-        vat_li: data.vat_li ?? null,
-        hoa_hoc: data.hoa_hoc ?? null,
-        sinh_hoc: data.sinh_hoc ?? null,
-        lich_su: data.lich_su ?? null,
-        dia_li: data.dia_li ?? null,
-        gdcd: data.gdcd ?? null,
-        ma_ngoai_ngu: data.ma_ngoai_ngu ?? null,
-      })),
-      skipDuplicates,
-    });
-    return result.count;
-  }
-
-  // Cập nhật một bản ghi
-  static async update(
-    id: number,
-    data: Partial<ICreateBangDiem>
-  ): Promise<BangDiem | null> {
-    try {
-      const record = await prisma.bangDiem.update({
-        where: { id },
-        data,
-      });
-      return new BangDiem(record);
-    } catch {
-      return null;
-    }
-  }
-
-  // Xóa một bản ghi
-  static async delete(id: number): Promise<boolean> {
-    try {
-      await prisma.bangDiem.delete({
-        where: { id },
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  // Xóa tất cả bản ghi
-  static async deleteAll(): Promise<number> {
-    const result = await prisma.bangDiem.deleteMany();
-    return result.count;
-  }
-
-  // Đếm tổng số bản ghi
-  static async count(): Promise<number> {
-    return await prisma.bangDiem.count();
-  }
-
-  // Tìm kiếm với điều kiện
-  static async findWhere(conditions: {
-    toan_gte?: number;
-    toan_lte?: number;
-    ngu_van_gte?: number;
-    ngu_van_lte?: number;
-    ma_ngoai_ngu?: string;
-  }): Promise<BangDiem[]> {
-    const where: any = {};
-
-    if (conditions.toan_gte !== undefined || conditions.toan_lte !== undefined) {
-      where.toan = {};
-      if (conditions.toan_gte !== undefined) where.toan.gte = conditions.toan_gte;
-      if (conditions.toan_lte !== undefined) where.toan.lte = conditions.toan_lte;
-    }
-
-    if (conditions.ngu_van_gte !== undefined || conditions.ngu_van_lte !== undefined) {
-      where.ngu_van = {};
-      if (conditions.ngu_van_gte !== undefined) where.ngu_van.gte = conditions.ngu_van_gte;
-      if (conditions.ngu_van_lte !== undefined) where.ngu_van.lte = conditions.ngu_van_lte;
-    }
-
-    if (conditions.ma_ngoai_ngu !== undefined) {
-      where.ma_ngoai_ngu = conditions.ma_ngoai_ngu;
-    }
-
-    const records = await prisma.bangDiem.findMany({ where });
-    return records.map((record: any) => new BangDiem(record));
   }
 }
 

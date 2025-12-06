@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import BangDiem, { ICreateBangDiem } from "../../src/model/BangDiem";
+import { ICreateBangDiem } from "../../src/model/BangDiem";
+import BangDiemRepository from "../../src/repositories/BangDiemRepository";
 
 const parseFloatValue = (value: string): number | null => {
   if (!value || value.trim() === "") {
@@ -19,6 +20,8 @@ const parseString = (value: string): string | null => {
 
 async function main() {
   console.log("Starting seed data...");
+
+  const repository = new BangDiemRepository();
 
   // Read CSV file
   const csvPath = path.join(__dirname, "diem_thi_thpt_2024.csv");
@@ -51,7 +54,7 @@ async function main() {
 
   // Delete old records (if any)
   console.log("Deleting old records...");
-  const deletedCount = await BangDiem.deleteAll();
+  const deletedCount = await repository.deleteAll();
   console.log("Deleted " + deletedCount + " old records");
 
   // Insert data in batches for better performance
@@ -61,12 +64,14 @@ async function main() {
   for (let i = 0; i < records.length; i += batchSize) {
     const batch = records.slice(i, i + batchSize);
 
-    const count = await BangDiem.createMany(batch);
+    const count = await repository.createMany(batch);
     insertedCount += count;
     console.log("Inserted " + insertedCount + "/" + records.length + " records");
   }
 
   console.log("Seeding completed!");
+  
+  await repository.disconnect();
 }
 
 main().catch((e) => {
