@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  # Redis Cache - Demo only
+  # For production, use managed Redis service (AWS ElastiCache, Azure Redis, etc.)
+  redis:
+    image: redis:7-alpine
+    container_name: g-scores-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  default:
+    name: g-scores-network
+    driver: bridge
+
