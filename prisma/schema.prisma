@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BangDiem {
+  id          Int      @id @default(autoincrement())
+  sbd         String   @unique // Số báo danh
+  toan        Float?   // Điểm Toán
+  ngu_van     Float?   // Điểm Ngữ văn
+  ngoai_ngu   Float?   // Điểm Ngoại ngữ
+  vat_li      Float?   // Điểm Vật lí
+  hoa_hoc     Float?   // Điểm Hóa học
+  sinh_hoc    Float?   // Điểm Sinh học
+  lich_su     Float?   // Điểm Lịch sử
+  dia_li      Float?   // Điểm Địa lí
+  gdcd        Float?   // Điểm GDCD
+  ma_ngoai_ngu String? // Mã ngoại ngữ (N1, N2, ...)
+
+  @@map("bang_diem")
+}
