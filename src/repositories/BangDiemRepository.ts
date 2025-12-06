@@ -1,5 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, BangDiem as PrismaBangDiem } from "@prisma/client";
 import BangDiem, { ICreateBangDiem } from "../model/BangDiem";
+
+const prisma = new PrismaClient();
 
 export class BangDiemRepository {
   private prisma: PrismaClient;
@@ -29,6 +31,36 @@ export class BangDiemRepository {
 
   async count(): Promise<number> {
     return await this.prisma.bangDiem.count();
+  }
+
+  // Tạo nhiều bản ghi cùng lúc
+  async createMany(
+    dataList: ICreateBangDiem[],
+    skipDuplicates: boolean = true
+  ): Promise<number> {
+    const result = await this.prisma.bangDiem.createMany({
+      data: dataList.map((data) => ({
+        sbd: data.sbd,
+        toan: data.toan ?? null,
+        ngu_van: data.ngu_van ?? null,
+        ngoai_ngu: data.ngoai_ngu ?? null,
+        vat_li: data.vat_li ?? null,
+        hoa_hoc: data.hoa_hoc ?? null,
+        sinh_hoc: data.sinh_hoc ?? null,
+        lich_su: data.lich_su ?? null,
+        dia_li: data.dia_li ?? null,
+        gdcd: data.gdcd ?? null,
+        ma_ngoai_ngu: data.ma_ngoai_ngu ?? null,
+      })),
+      skipDuplicates,
+    });
+    return result.count;
+  }
+
+  // Xóa tất cả bản ghi
+  async deleteAll(): Promise<number> {
+    const result = await this.prisma.bangDiem.deleteMany();
+    return result.count;
   }
 
   async findWhere(conditions: {
