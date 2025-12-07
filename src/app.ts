@@ -3,6 +3,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import scoresRoutes from "./routes/scores.routes";
 import statisticsRoutes from "./routes/statistics.routes";
+import topScoresRoutes from "./routes/topScores.routes";
 import { errorHandler, notFound, requestLogger, rateLimiter } from "./middleware";
 import CacheManager from "./utils/CacheManager";
 
@@ -36,6 +37,7 @@ app.get("/health", (req: Request, res: Response) => {
 // Routes
 app.use("/api/scores", scoresRoutes);
 app.use("/api/statistics", statisticsRoutes);
+app.use("/api/find-top", topScoresRoutes);
 
 // Error handling middleware (phải đặt cuối cùng)
 app.use(notFound);

@@ -28,7 +28,7 @@ export class BlockScoresService {
   }
 
   /**
-   * Lấy top N thí sinh có điểm cao nhất theo khối
+   * Lấy top 10 thí sinh có điểm cao nhất theo khối
    */
   async getTopByBlock(
     blockType: BlockType,
@@ -42,7 +42,7 @@ export class BlockScoresService {
       blockType
     );
 
-    // Lấy top N
+    // Lấy top 10
     const topResults = sortedResults.slice(0, limit).map((entry) => ({
       ...this.mapper.toDetailedResponse(entry.item),
       tongDiemKhoi: entry.score,
