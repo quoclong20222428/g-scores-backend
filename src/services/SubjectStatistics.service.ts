@@ -235,7 +235,6 @@ export class SubjectStatisticsService {
 
   /**
    * Lấy danh sách tất cả môn học có sẵn
-   * Sử dụng để hiển thị dropdown/filter options ở frontend
    */
   getAvailableSubjects(): Array<{ key: string; name: string }> {
     return this.ALL_SUBJECTS.map((key) => ({

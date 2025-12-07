@@ -21,6 +21,22 @@ export class CacheManager {
   };
 
   /**
+   * Tạo TTL với jitter ngẫu nhiên (có thể âm hoặc dương)
+   * Giúp tránh cache avalanche khi nhiều key expire cùng lúc
+   * @param baseTtl Base TTL in seconds
+   * @param maxVariance Maximum variance in seconds (default: 60)
+   * @returns TTL with random variance in range [-maxVariance, +maxVariance]
+   */
+  private static generateTTLWithJitter(
+    baseTtl: number,
+    maxVariance: number = 60
+  ): number {
+    // Tạo jitter từ -maxVariance đến +maxVariance
+    const jitter = Math.floor(Math.random() * (maxVariance * 2 + 1)) - maxVariance;
+    return Math.max(1, baseTtl + jitter);
+  }
+
+  /**
    * Khởi tạo Redis connection
    * Gọi lần duy nhất khi app start
    */
@@ -73,13 +89,22 @@ export class CacheManager {
    * @param key Cache key
    * @param value Data cần cache
    * @param ttl TTL in seconds (optional, default = 3600s)
+   * @param withJitter Apply random jitter to TTL (optional, default = true)
    */
-  static async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
+  static async set<T>(
+    key: string,
+    value: T,
+    ttl?: number,
+    withJitter: boolean = true
+  ): Promise<boolean> {
     if (!this.client || !this.isConnected) return false;
 
     try {
       const serialized = JSON.stringify(value);
-      const options = ttl ? { EX: ttl } : undefined;
+      const finalTtl = withJitter
+        ? this.generateTTLWithJitter(ttl || 3600)
+        : ttl;
+      const options = finalTtl ? { EX: finalTtl } : undefined;
       await this.client.set(key, serialized, options);
       return true;
     } catch (error) {
@@ -135,7 +160,8 @@ export class CacheManager {
     return this.set<T>(
       this.CACHE_KEYS.FULL_STATISTICS,
       data,
-      this.TTL.FULL_STATISTICS
+      this.TTL.FULL_STATISTICS,
+      true // Enable jitter
     );
   }
 
