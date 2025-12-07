@@ -137,10 +137,11 @@ export class StatisticsController {
   };
 
   /**
-   * Lấy danh sách các option có sẵn (subjects + levels)
+   * Lấy danh sách các môn học có sẵn (subjects)
    * Endpoint: GET /api/statistics/metadata
    *
    * Sử dụng để populate dropdown/filter options ở frontend
+   * Levels được cố định ở frontend, không cần gọi API
    *
    * Response:
    * {
@@ -150,11 +151,6 @@ export class StatisticsController {
    *     subjects: [
    *       { key: "toan", name: "Toán" },
    *       { key: "ngu_van", name: "Ngữ Văn" },
-   *       ...
-   *     ],
-   *     levels: [
-   *       { key: "excellent", name: "Xuất sắc (≥ 8)" },
-   *       { key: "good", name: "Khá (6-8)" },
    *       ...
    *     ]
    *   }
@@ -166,15 +162,13 @@ export class StatisticsController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const subjects = this.service.getAvailableSubjects();
-      const levels = this.service.getAvailableLevels();
+      const subjects = await this.service.getAvailableSubjectsCached();
 
       res.status(200).json({
         success: true,
         message: "Lấy metadata thành công",
         data: {
           subjects,
-          levels,
         },
       });
     } catch (error) {

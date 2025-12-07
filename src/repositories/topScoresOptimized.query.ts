@@ -60,15 +60,8 @@ export class TopScoresOptimizedQuery {
               id,
               sbd,
               toan,
-              ngu_van,
-              ngoai_ngu,
               vat_li,
               hoa_hoc,
-              sinh_hoc,
-              lich_su,
-              dia_li,
-              gdcd,
-              ma_ngoai_ngu,
               (COALESCE(toan, 0) + COALESCE(vat_li, 0) + COALESCE(hoa_hoc, 0)) AS total_score,
               CAST(ROW_NUMBER() OVER (ORDER BY (COALESCE(toan, 0) + COALESCE(vat_li, 0) + COALESCE(hoa_hoc, 0)) DESC) AS int) AS rank
             FROM bang_diem
@@ -87,15 +80,8 @@ export class TopScoresOptimizedQuery {
               id,
               sbd,
               toan,
-              ngu_van,
-              ngoai_ngu,
-              vat_li,
               hoa_hoc,
               sinh_hoc,
-              lich_su,
-              dia_li,
-              gdcd,
-              ma_ngoai_ngu,
               (COALESCE(toan, 0) + COALESCE(hoa_hoc, 0) + COALESCE(sinh_hoc, 0)) AS total_score,
               CAST(ROW_NUMBER() OVER (ORDER BY (COALESCE(toan, 0) + COALESCE(hoa_hoc, 0) + COALESCE(sinh_hoc, 0)) DESC) AS int) AS rank
             FROM bang_diem
@@ -113,16 +99,9 @@ export class TopScoresOptimizedQuery {
             SELECT 
               id,
               sbd,
-              toan,
               ngu_van,
-              ngoai_ngu,
-              vat_li,
-              hoa_hoc,
-              sinh_hoc,
               lich_su,
               dia_li,
-              gdcd,
-              ma_ngoai_ngu,
               (COALESCE(ngu_van, 0) + COALESCE(lich_su, 0) + COALESCE(dia_li, 0)) AS total_score,
               CAST(ROW_NUMBER() OVER (ORDER BY (COALESCE(ngu_van, 0) + COALESCE(lich_su, 0) + COALESCE(dia_li, 0)) DESC) AS int) AS rank
             FROM bang_diem
@@ -143,12 +122,6 @@ export class TopScoresOptimizedQuery {
               toan,
               ngu_van,
               ngoai_ngu,
-              vat_li,
-              hoa_hoc,
-              sinh_hoc,
-              lich_su,
-              dia_li,
-              gdcd,
               ma_ngoai_ngu,
               (COALESCE(toan, 0) + COALESCE(ngu_van, 0) + COALESCE(ngoai_ngu, 0)) AS total_score,
               CAST(ROW_NUMBER() OVER (ORDER BY (COALESCE(toan, 0) + COALESCE(ngu_van, 0) + COALESCE(ngoai_ngu, 0)) DESC) AS int) AS rank

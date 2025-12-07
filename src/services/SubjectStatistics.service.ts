@@ -234,7 +234,7 @@ export class SubjectStatisticsService {
   }
 
   /**
-   * Lấy danh sách tất cả môn học có sẵn
+   * Lấy danh sách tất cả môn học có sẵn (không cached)
    */
   getAvailableSubjects(): Array<{ key: string; name: string }> {
     return this.ALL_SUBJECTS.map((key) => ({
@@ -244,7 +244,39 @@ export class SubjectStatisticsService {
   }
 
   /**
-   * Lấy danh sách tất cả mức điểm
+   * Lấy danh sách tất cả môn học với caching Redis
+   * Cache TTL: 1 giờ (metadata ít thay đổi)
+   */
+  async getAvailableSubjectsCached(): Promise<
+    Array<{ key: string; name: string }>
+  > {
+    const cacheKey = "metadata:subjects";
+    const cacheTTL = 3600; // 1 hour
+
+    // Check cache
+    const cached = await CacheManager.get<
+      Array<{ key: string; name: string }>
+    >(cacheKey);
+    if (cached) {
+      console.log("[Cache HIT] Metadata subjects");
+      return cached;
+    }
+
+    console.log("[Cache MISS] Metadata subjects - Building from definition");
+
+    // Build data
+    const subjects = this.getAvailableSubjects();
+
+    // Cache result
+    await CacheManager.set(cacheKey, subjects, cacheTTL);
+    console.log(`[Cache SET] Metadata subjects with TTL ${cacheTTL}s`);
+
+    return subjects;
+  }
+
+  /**
+   * Lấy danh sách tất cả mức điểm (không dùng nữa, cố định ở frontend)
+   * @deprecated Levels được định nghĩa cố định ở frontend
    */
   getAvailableLevels(): Array<{ key: ScoreLevel; name: string }> {
     return [
