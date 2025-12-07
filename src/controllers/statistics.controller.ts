@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import SubjectStatisticsService, {
   FilterRequest,
-} from "../services/SubjectStatisticsService";
+} from "../services/SubjectStatistics.service";
 
 /**
  * StatisticsController - Xử lý HTTP requests cho statistics

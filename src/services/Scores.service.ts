@@ -1,6 +1,6 @@
 import BangDiemRepository from "../repositories/BangDiemRepository";
-import SearchScoresService from "./SearchScoresService";
-import BlockScoresService from "./BlockScoresService";
+import SearchScoresService from "./SearchScores.service";
+import BlockScoresService from "./BlockScores.service";
 import ScoresMapper from "./ScoresMapper";
 import BlockScoresCalculator, { BlockType } from "./BlockScoresCalculator";
 

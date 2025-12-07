@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import ScoresService from "../services/ScoresService";
+import ScoresService from "../services/Scores.service";
 
 export class ScoresController {
   private service: ScoresService;
