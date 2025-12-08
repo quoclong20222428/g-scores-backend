@@ -1,28 +1,30 @@
-version: "3.9"
+version: '3.9'
 
 services:
-  # Redis Cache - Demo only
-  # For production, use managed Redis service (AWS ElastiCache, Azure Redis, etc.)
-  redis:
-    image: redis:7-alpine
-    container_name: g-scores-redis
-    command: redis-server --appendonly yes
+  # Production: Backend only (no database/cache dependencies)
+  # Uses pre-built image from Docker Hub
+  backend:
+    image: quoclong2k4/g-scores-api:latest
+    container_name: g-scores-backend
     ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      PORT: 3000
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  redis_data:
-    driver: local
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - g-scores-network
 
 networks:
-  default:
-    name: g-scores-network
+  g-scores-network:
     driver: bridge
 

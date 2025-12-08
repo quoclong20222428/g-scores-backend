@@ -81,8 +81,9 @@ GET /health
 - Docker & Docker Compose (for Redis)
 - PostgreSQL connection string
 
-## Installation
+## Installation & Setup
 
+### Installation
 1. **Clone repository**
 ```bash
 git clone https://github.com/quoclong20222428/g-scores-backend.git
@@ -96,30 +97,18 @@ npm install
 
 3. **Setup environment**
 ```bash
-# Copy .env.example to .env and configure
 cp .env.example .env
-
-# Required environment variables:
-DATABASE_URL=<your-postgres-url>
-REDIS_URL=redis://localhost:6379
-PORT=5001
-CORS_ORIGIN=http://localhost:5173
-NODE_ENV=development
 ```
 
-4. **Setup database & seed data**
+### Seed Database Configuration
 ```bash
-# Run Prisma migrations
-npm run db:migrate
-
-# Seed initial data
-# Smart seed: automatically skips if data already exists
+# Smart seed: Auto detects existing data
 npm run db:seed
 
-# Force reseed (delete old data, import new)
+# Force reseed (delete + reimport)
 FORCE_SEED=true npm run db:seed
 
-# Explicitly skip seed
+# Skip seed
 FORCE_SEED=false npm run db:seed
 ```
 
@@ -129,25 +118,97 @@ FORCE_SEED=false npm run db:seed
 - **FORCE_SEED=true**: Always seeds (delete + import)
 - **FORCE_SEED=false**: Always skip seed
 
-## Running
+## Development Setup (2 Options)
 
-### Development Mode
+### Option 1: Docker (Recommended for Demo)
+Perfect for quickly testing the full stack with PostgreSQL and Redis.
+
 ```bash
-# Start Redis in Docker
-docker-compose up -d
+# 1. Start all services (PostgreSQL, Redis, Backend)
+docker-compose -f docker-compose.dev.yaml up -d
 
-# Run development server with hot reload
-npm run dev
+# 2. Run migrations in container
+docker exec g-scores-backend npm run db:migrate
+
+# 3. Seed database
+docker exec g-scores-backend npm run db:seed
+
+# 4. Backend is ready at: http://localhost:5001
+# Frontend can connect to: http://localhost:5001/api/...
 ```
 
-### Production Mode
-```bash
-# Build TypeScript
-npm run build
+**What's running:**
+- **Backend API**: http://localhost:5001
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
+- **CORS**: Enabled for http://localhost:5173 (frontend)
 
-# Start server
+To stop:
+```bash
+docker-compose -f docker-compose.dev.yaml down
+```
+
+### Option 2: Manual (Recommended for Development)
+Run backend locally with hot-reload for faster development.
+
+```bash
+# 1. Start only databases with Docker
+docker-compose -f docker-compose.dev.yaml up postgres redis -d
+
+# 2. Run migrations
+npm run db:migrate
+
+# 3. Seed database
+npm run db:seed
+
+# 4. Start dev server with hot-reload
+npm run dev
+
+# 5. Backend is ready at: http://localhost:3000
+# Frontend can connect to: http://localhost:3000/api/...
+```
+
+To stop:
+```bash
+# Stop databases
+docker-compose -f docker-compose.dev.yaml down
+
+# Or just stop npm dev server (Ctrl+C)
+```
+
+## Production Deployment
+
+### Build for Production
+```bash
+npm run build
 npm start
 ```
+
+### Docker Production
+Requires external PostgreSQL and Redis services.
+
+```bash
+# Build image
+docker build -t g-scores-backend .
+
+# Run with environment variables
+docker run -p 3000:3000 \
+  -e DATABASE_URL=postgresql://user:password@host:5432/db \
+  -e REDIS_URL=redis://redis-host:6379 \
+  -e NODE_ENV=production \
+  g-scores-backend
+
+# Or use docker-compose with external services
+docker-compose up -d
+```
+
+**Production Features:**
+- Multi-stage build (optimized ~250MB image)
+- Non-root user for security
+- Health checks with auto-restart
+- Graceful shutdown (SIGTERM/SIGINT)
+- Alpine Linux base image
+
 
 ## Project Structure
 

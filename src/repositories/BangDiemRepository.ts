@@ -1,5 +1,7 @@
-import { PrismaClient, BangDiem as PrismaBangDiem } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import BangDiem, { ICreateBangDiem } from "../model/BangDiem";
+
+type PrismaBangDiem = any; // Prisma model type
 
 const prisma = new PrismaClient();
 
@@ -26,7 +28,7 @@ export class BangDiemRepository {
       take: options?.take,
       orderBy: { sbd: "asc" },
     });
-    return records.map((record) => new BangDiem(record));
+    return records.map((record: PrismaBangDiem) => new BangDiem(record));
   }
 
   async count(): Promise<number> {
@@ -96,7 +98,7 @@ export class BangDiemRepository {
     }
 
     const records = await this.prisma.bangDiem.findMany({ where });
-    return records.map((record) => new BangDiem(record));
+    return records.map((record: PrismaBangDiem) => new BangDiem(record));
   }
 
   async disconnect(): Promise<void> {
