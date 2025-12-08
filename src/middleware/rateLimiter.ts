@@ -20,7 +20,7 @@ export const rateLimiter = (limit: number = 100, windowMs: number = 60000) => {
     if (record.count >= limit) {
       return res.status(429).json({
         success: false,
-        message: "Quá nhiều yêu cầu. Vui lòng thử lại sau",
+        message: "Too many requests. Please try again later",
       });
     }
 

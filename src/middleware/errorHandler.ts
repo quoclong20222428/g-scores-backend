@@ -9,7 +9,7 @@ export const errorHandler = (
 ) => {
   console.error("Error:", err);
 
-  // Xử lý custom HttpError
+  // Handle custom HttpError
   if (err instanceof HttpError) {
     return res.status(err.statusCode).json({
       success: false,
@@ -18,10 +18,10 @@ export const errorHandler = (
     });
   }
 
-  // Xử lý lỗi chung
+  // Handle general errors
   res.status(500).json({
     success: false,
-    message: "Đã xảy ra lỗi từ phía server",
+    message: "An error occurred on the server",
     error: process.env.NODE_ENV === "development" ? err.message : undefined,
   });
 };
@@ -29,6 +29,6 @@ export const errorHandler = (
 export const notFound = (req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
     success: false,
-    message: `Route ${req.originalUrl} không tồn tại`,
+    message: `Route ${req.originalUrl} not found`,
   });
 };

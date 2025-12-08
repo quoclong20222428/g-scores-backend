@@ -12,7 +12,7 @@ export interface IScoresResponse {
 
 /**
  * Main Scores Service - Facade Pattern
- * Tập hợp tất cả các service con để cung cấp API đơn giản
+ * Aggregates all sub-services to provide a simple API
  */
 export class ScoresService {
   private searchService: SearchScoresService;

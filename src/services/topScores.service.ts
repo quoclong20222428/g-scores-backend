@@ -79,7 +79,7 @@ export class TopScoresService {
     const cacheKey = this.CACHE_KEYS.TOP_SCORES_BLOCK(block);
 
     try {
-      // Bước 1: Check cache
+      // Step 1: Check cache
       const cached = await CacheManager.get<TopScoreResult[]>(cacheKey);
       if (cached) {
         console.log(
@@ -92,13 +92,13 @@ export class TopScoresService {
         };
       }
 
-      // Bước 2: Cache miss - Query database
+      // Step 2: Cache miss - Query database
       console.log(
         `[TopScoresService] Cache MISS for block ${block} - Querying database`
       );
       const scores = await this.query.getTopScoresByBlock(block);
 
-      // Bước 3: Cache result
+      // Step 3: Cache result
       await CacheManager.set(cacheKey, scores, this.TTL.TOP_SCORES);
       console.log(
         `[TopScoresService] Cached top scores for block ${block} (TTL: 1 hour)`
@@ -169,7 +169,7 @@ export class TopScoresService {
    */
   async getStudentTopRanks(sbd: string): Promise<StudentTopRanksResponse> {
     try {
-      // Validate SBD
+      // Validate student ID format
       if (!sbd || sbd.trim().length === 0) {
         throw new Error("Invalid student ID");
       }

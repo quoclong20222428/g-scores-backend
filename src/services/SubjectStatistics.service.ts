@@ -109,7 +109,7 @@ export class SubjectStatisticsService {
         console.log("[Statistics] Cache HIT - Full data retrieved from Redis");
         return {
           success: true,
-          message: "Lấy thống kê tất cả các môn học thành công (from cache)",
+          message: "Retrieved all subject statistics successfully (from cache)",
           data: statistics,
         };
       }
@@ -131,7 +131,7 @@ export class SubjectStatisticsService {
 
       return {
         success: true,
-        message: "Lấy thống kê tất cả các môn học thành công",
+        message: "Retrieved all subject statistics successfully",
         data: statistics,
       };
     } catch (error) {

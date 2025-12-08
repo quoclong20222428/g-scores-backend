@@ -10,16 +10,16 @@ export const validateSbd = (
   if (!sbd) {
     return res.status(400).json({
       success: false,
-      message: "Số báo danh không được để trống",
+      message: "Student ID is required",
     });
   }
 
-  // Validate format số báo danh (8 chữ số)
+  // Validate format - student ID must be 8 digits
   const sbdRegex = /^\d{8}$/;
   if (!sbdRegex.test(sbd)) {
     return res.status(400).json({
       success: false,
-      message: "Số báo danh không hợp lệ. Số báo danh phải có 8 chữ số",
+      message: "Invalid student ID. Student ID must be 8 digits",
     });
   }
 
@@ -36,14 +36,14 @@ export const validateSearchQuery = (
   if (page && isNaN(Number(page))) {
     return res.status(400).json({
       success: false,
-      message: "Tham số page phải là số",
+      message: "Page parameter must be a number",
     });
   }
 
   if (limit && isNaN(Number(limit))) {
     return res.status(400).json({
       success: false,
-      message: "Tham số limit phải là số",
+      message: "Limit parameter must be a number",
     });
   }
 

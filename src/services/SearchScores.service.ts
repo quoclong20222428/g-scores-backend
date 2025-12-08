@@ -59,13 +59,13 @@ export class SearchScoresService {
         cachedResult.__notFound === true
       ) {
         throw new NotFoundError(
-          "Không tìm thấy thông tin điểm với số báo danh này"
+          "No scores found for this student ID"
         );
       }
 
       return {
         success: true,
-        message: "Tìm kiếm thành công (từ cache)",
+        message: "Search successful (from cache)",
         data: cachedResult,
       };
     }
@@ -91,7 +91,7 @@ export class SearchScoresService {
 
     return {
       success: true,
-      message: "Tìm kiếm thành công",
+      message: "Search successful",
       data: mappedResult,
     };
   }
@@ -147,7 +147,7 @@ export class SearchScoresService {
 
     return {
       success: true,
-      message: "Lấy danh sách thành công",
+      message: "Retrieved list successfully",
       data: {
         items: this.mapper.toSimpleList(results),
         total,
