@@ -11,9 +11,9 @@ npm run db:generate
 echo "Step 2: Running database migrations..."
 npm run db:migrate -- --skip-generate
 
-# Step 3: Seed database
+# Step 3: Seed database (with increased heap for large CSV processing)
 echo "Step 3: Seeding database..."
-npm run db:seed
+NODE_OPTIONS="--max-old-space-size=256" npm run db:seed
 
 # Step 4: Start the application
 echo "Step 4: Starting application..."

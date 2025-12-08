@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as readline from "readline";
 import { ICreateBangDiem } from "../../src/model/BangDiem";
 import BangDiemRepository from "../../src/repositories/BangDiemRepository";
 
@@ -69,27 +70,53 @@ async function main() {
     return;
   }
 
-  // Read CSV file
+  // Read CSV file using streaming to avoid memory issues
   const csvPath = path.join(__dirname, "diem_thi_thpt_2024.csv");
   
   if (!fs.existsSync(csvPath)) {
     throw new Error(`CSV file not found at ${csvPath}`);
   }
 
-  const csvContent = fs.readFileSync(csvPath, "utf-8");
+  console.log("[Seed] Reading CSV file using streaming...");
 
-  // Split lines and skip header
-  const lines = csvContent.split("\n").filter((line) => line.trim() !== "");
-  const header = lines[0];
-  const dataLines = lines.slice(1);
+  const fileStream = fs.createReadStream(csvPath, { encoding: "utf-8" });
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
 
-  console.log(`[Seed] Reading ${dataLines.length} records from CSV file...`);
+  const batchSize = 500; // Process 2000 records at a time (optimized for low-memory environments like Render)
+  let batch: ICreateBangDiem[] = [];
+  let lineCount = 0;
+  let insertedCount = 0;
+  let totalRecords = 0;
 
-  // Parse data from CSV
-  const records: ICreateBangDiem[] = dataLines.map((line) => {
+  // Count total records first (quick scan)
+  const countStream = fs.createReadStream(csvPath, { encoding: "utf-8" });
+  const countRl = readline.createInterface({
+    input: countStream,
+    crlfDelay: Infinity,
+  });
+
+  for await (const line of countRl) {
+    if (lineCount > 0) totalRecords++; // Skip header
+    lineCount++;
+  }
+  lineCount = 0;
+
+  console.log(`[Seed] CSV contains approximately ${totalRecords} records`);
+
+  // Process lines
+  for await (const line of rl) {
+    // Skip empty lines and header
+    if (!line.trim() || lineCount === 0) {
+      lineCount++;
+      continue;
+    }
+
     const values = line.split(",");
-    return {
-      sbd: values[0].trim(),
+    const record: ICreateBangDiem = {
+      sbd: values[0]?.trim() || "",
       toan: parseFloatValue(values[1]),
       ngu_van: parseFloatValue(values[2]),
       ngoai_ngu: parseFloatValue(values[3]),
@@ -101,27 +128,29 @@ async function main() {
       gdcd: parseFloatValue(values[9]),
       ma_ngoai_ngu: parseString(values[10]),
     };
-  });
 
-  // Delete old records (if any)
-  console.log("[Seed] Deleting existing records...");
-  const deletedCount = await repository.deleteAll();
-  console.log(`[Seed] Deleted ${deletedCount} existing records`);
+    batch.push(record);
+    lineCount++;
 
-  // Insert data in batches for better performance
-  const batchSize = 1000;
-  let insertedCount = 0;
+    // Insert batch when size is reached
+    if (batch.length >= batchSize) {
+      const count = await repository.createMany(batch);
+      insertedCount += count;
+      const progress = Math.round((insertedCount / totalRecords) * 100);
+      console.log(
+        `[Seed] Progress: ${insertedCount}/${totalRecords} (${progress}%)`
+      );
+      batch = []; // Clear batch for next iteration
+    }
+  }
 
-  console.log(`[Seed] Inserting ${records.length} records in batches of ${batchSize}...`);
-
-  for (let i = 0; i < records.length; i += batchSize) {
-    const batch = records.slice(i, i + batchSize);
-
+  // Insert remaining records
+  if (batch.length > 0) {
     const count = await repository.createMany(batch);
     insertedCount += count;
-    
-    const progress = Math.round((insertedCount / records.length) * 100);
-    console.log(`[Seed] Progress: ${insertedCount}/${records.length} (${progress}%)`);
+    console.log(
+      `[Seed] Progress: ${insertedCount}/${totalRecords} (100%)`
+    );
   }
 
   console.log(`[Seed] ✓ Seeding completed successfully!`);
