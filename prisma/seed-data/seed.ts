@@ -85,7 +85,7 @@ async function main() {
     crlfDelay: Infinity,
   });
 
-  const batchSize = 500; // Process 2000 records at a time (optimized for low-memory environments like Render)
+  const batchSize = 1000;
   let batch: ICreateBangDiem[] = [];
   let lineCount = 0;
   let insertedCount = 0;
